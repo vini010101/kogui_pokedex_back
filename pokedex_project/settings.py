@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'rest_framework_simplejwt',
+     'drf_yasg',
     'pokedex_app',
     'django.contrib.admin',
     'django.contrib.auth',

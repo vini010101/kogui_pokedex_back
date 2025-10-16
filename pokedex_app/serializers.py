@@ -36,3 +36,14 @@ class PokemonUsuarioSerializer(serializers.ModelSerializer):
             'GrupoBatalha',
             'Favorito'
         ]
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(required=True, write_only=True)
+
+
+class RegisterSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    username = serializers.CharField(required=True, max_length=150)
+    password = serializers.CharField(required=True, write_only=True, min_length=6)

@@ -1,13 +1,18 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import UsuarioViewSet, TipoPokemonViewSet, PokemonUsuarioViewSet, login_view
+from django.urls import path
+from .views import  login_view, listar_equipe_view, listar_pokemons_view, listar_favoritos_view, register_user_view
 
-router = DefaultRouter()
-router.register(r'usuarios', UsuarioViewSet)
-router.register(r'tipos', TipoPokemonViewSet)
-router.register(r'pokemons', PokemonUsuarioViewSet)
+ # importa o schema_view para gerar a documentação da api, 
+ # #centralizei todas ao urls dentro do arquivo de urls do app
+from pokedex_project.swagger import schema_view 
+
 
 urlpatterns = [
-    path('', include(router.urls)),
+
     path('login/', login_view, name='login'),
+    path('register/', register_user_view, name='register_user'),
+    path('api/pokemons/', listar_pokemons_view, name='listar_pokemons'),
+    path('api/pokemons/favoritos/', listar_favoritos_view, name='listar_favoritos'),
+    path('api/pokemons/equipe/', listar_equipe_view, name='listar_equipe'),
+    path('api/swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
