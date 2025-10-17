@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-dnyzoduwg@@cs&4rwt=e!tp*=(#le5wcn1(cpp6@(-hv^w2hk!
 DEBUG = True
 
 ALLOWED_HOSTS = []
+AUTH_USER_MODEL = 'pokedex_app.Usuario'
 
 # como se trata de um teste Tecnico deixei que qualquer origem acesse o backend para facilictar o desenvolvimento.
 CORS_ALLOW_ALL_ORIGINS = True
@@ -120,6 +121,8 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "USER_ID_FIELD": "IDUsuario",
+    "USER_ID_CLAIM": "user_id",
 }
 
 
