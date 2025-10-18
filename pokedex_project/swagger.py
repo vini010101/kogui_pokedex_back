@@ -1,10 +1,11 @@
-# pokedex_project/swagger.py
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
-from drf_yasg.utils import swagger_auto_schema
+from rest_framework import permissions
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+from drf_yasg.utils import swagger_auto_schema  # <--- CORREÇÃO
 from rest_framework import permissions
 from pokedex_app.serializers import RegisterSerializer, PokemonUsuarioSerializer, LoginSerializer
-from rest_framework_simplejwt.authentication import JWTAuthentication
 
 # Informações da API
 schema_info = openapi.Info(
@@ -15,23 +16,25 @@ schema_info = openapi.Info(
     license=openapi.License(name="MIT License"),
 )
 
-# ===== Security Definitions globais para Swagger =====
-SECURITY_DEFINITIONS = {
-    'Bearer': {
-        'type': 'apiKey',
-        'name': 'Authorization',
-        'in': 'header',
-        'description': 'Digite: Bearer <seu_token>'
-    }
-}
-
 # Schema view com JWT
 schema_view = get_schema_view(
     schema_info,
     public=True,
     permission_classes=[permissions.AllowAny],
-    authentication_classes=[JWTAuthentication],
+    authentication_classes=[],  # deixa vazio aqui, JWT será apenas na segurança
 )
+
+# Security Definition global
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+            'description': 'Digite: Bearer <seu_token>'
+        }
+    }
+}
 
 # ==== Decorators swagger ====
 
@@ -44,7 +47,7 @@ register_user_schema = swagger_auto_schema(
         400: 'Campos obrigatórios ausentes',
         409: 'Email já existe'
     },
-    security=[]
+    security=[],
 )
 
 # Login (não precisa de token)
@@ -55,20 +58,8 @@ login_schema = swagger_auto_schema(
         200: 'Login realizado',
         401: 'Credenciais inválidas'
     },
-    security=[]
+    security=[],
 )
-
-# Função auxiliar para adicionar token manualmente (opcional)
-def token_header():
-    return [
-        openapi.Parameter(
-            'Authorization',
-            openapi.IN_HEADER,
-            description="Bearer <seu_token>",
-            type=openapi.TYPE_STRING,
-            required=True
-        )
-    ]
 
 # ===== Endpoints protegidos =====
 
@@ -79,7 +70,7 @@ listar_pokemons_schema = swagger_auto_schema(
         openapi.Parameter('codigo', openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description="Filtra pelo código do Pokémon"),
     ],
     responses={200: PokemonUsuarioSerializer(many=True)},
-    security=[{'Bearer': []}],  # <-- Aplica token JWT
+    security=[{'Bearer': []}],
 )
 
 adicionar_pokemon_schema = swagger_auto_schema(
