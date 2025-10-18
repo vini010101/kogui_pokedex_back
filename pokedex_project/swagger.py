@@ -25,44 +25,61 @@ SECURITY_DEFINITIONS = {
     }
 }
 
-
-
-# Security scheme JWT (usado nos endpoints)
-JWT_SECURITY = [{'Bearer': []}]
-
-# Schema view
+# Schema view com JWT
 schema_view = get_schema_view(
     schema_info,
     public=True,
     permission_classes=[permissions.AllowAny],
-    authentication_classes=[JWTAuthentication],  # <-- JWT aqui
+    authentication_classes=[JWTAuthentication],
 )
-
 
 # ==== Decorators swagger ====
 
+# Registro de usuário (não precisa de token)
 register_user_schema = swagger_auto_schema(
     method='post',
     request_body=RegisterSerializer,
-    responses={201: 'Usuário criado', 400: 'Campos obrigatórios ausentes', 409: 'Email já existe'},
-    security=[]  # Registro não precisa de JWT
+    responses={
+        201: 'Usuário criado',
+        400: 'Campos obrigatórios ausentes',
+        409: 'Email já existe'
+    },
+    security=[]
 )
 
+# Login (não precisa de token)
 login_schema = swagger_auto_schema(
     method='post',
     request_body=LoginSerializer,
-    responses={200: 'Login realizado', 401: 'Credenciais inválidas'},
-    security=[]  # Login não precisa de JWT
+    responses={
+        200: 'Login realizado',
+        401: 'Credenciais inválidas'
+    },
+    security=[]
 )
+
+# Função auxiliar para adicionar token manualmente (opcional)
+def token_header():
+    return [
+        openapi.Parameter(
+            'Authorization',
+            openapi.IN_HEADER,
+            description="Bearer <seu_token>",
+            type=openapi.TYPE_STRING,
+            required=True
+        )
+    ]
+
+# ===== Endpoints protegidos =====
 
 listar_pokemons_schema = swagger_auto_schema(
     method='get',
     manual_parameters=[
-        openapi.Parameter('nome', openapi.IN_QUERY, description="Filtra pelo nome do Pokémon", type=openapi.TYPE_STRING),
-        openapi.Parameter('codigo', openapi.IN_QUERY, description="Filtra pelo código do Pokémon", type=openapi.TYPE_INTEGER),
+        openapi.Parameter('nome', openapi.IN_QUERY, type=openapi.TYPE_STRING, description="Filtra pelo nome do Pokémon"),
+        openapi.Parameter('codigo', openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description="Filtra pelo código do Pokémon"),
     ],
     responses={200: PokemonUsuarioSerializer(many=True)},
-    security=JWT_SECURITY
+    security=[{'Bearer': []}],  # <-- Aplica token JWT
 )
 
 adicionar_pokemon_schema = swagger_auto_schema(
@@ -71,10 +88,7 @@ adicionar_pokemon_schema = swagger_auto_schema(
         type=openapi.TYPE_OBJECT,
         required=['nome_pokemon'],
         properties={
-            'nome_pokemon': openapi.Schema(
-                type=openapi.TYPE_STRING, 
-                description="Nome do Pokémon a ser adicionado"
-            )
+            'nome_pokemon': openapi.Schema(type=openapi.TYPE_STRING, description="Nome do Pokémon a ser adicionado")
         }
     ),
     responses={
@@ -82,31 +96,39 @@ adicionar_pokemon_schema = swagger_auto_schema(
         400: 'Pokémon já na lista ou campo ausente',
         404: 'Pokémon não encontrado'
     },
-    security=JWT_SECURITY
+    security=[{'Bearer': []}],
 )
 
 listar_favoritos_schema = swagger_auto_schema(
     method='get',
     responses={200: PokemonUsuarioSerializer(many=True)},
-    security=JWT_SECURITY
+    security=[{'Bearer': []}],
 )
 
 listar_equipe_schema = swagger_auto_schema(
     method='get',
     responses={200: PokemonUsuarioSerializer(many=True)},
-    security=JWT_SECURITY
+    security=[{'Bearer': []}],
 )
 
 atualizar_favorito_schema = swagger_auto_schema(
     method='patch',
-    manual_parameters=[openapi.Parameter('pokemon_id', openapi.IN_PATH, description="ID do Pokémon", type=openapi.TYPE_INTEGER)],
+    manual_parameters=[
+        openapi.Parameter('pokemon_id', openapi.IN_PATH, type=openapi.TYPE_INTEGER, description="ID do Pokémon")
+    ],
     responses={200: PokemonUsuarioSerializer(), 404: 'Pokémon não encontrado'},
-    security=JWT_SECURITY
+    security=[{'Bearer': []}],
 )
 
 atualizar_equipe_schema = swagger_auto_schema(
     method='patch',
-    manual_parameters=[openapi.Parameter('pokemon_id', openapi.IN_PATH, description="ID do Pokémon", type=openapi.TYPE_INTEGER)],
-    responses={200: PokemonUsuarioSerializer(), 400: 'Máximo de 6 Pokémons na equipe', 404: 'Pokémon não encontrado'},
-    security=JWT_SECURITY
+    manual_parameters=[
+        openapi.Parameter('pokemon_id', openapi.IN_PATH, type=openapi.TYPE_INTEGER, description="ID do Pokémon")
+    ],
+    responses={
+        200: PokemonUsuarioSerializer(),
+        400: 'Máximo de 6 Pokémons na equipe',
+        404: 'Pokémon não encontrado'
+    },
+    security=[{'Bearer': []}],
 )

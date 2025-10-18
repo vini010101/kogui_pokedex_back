@@ -8,12 +8,12 @@ from pokedex_project.swagger import schema_view
 
 urlpatterns = [
 
-    path('login/', login_view, name='login'),
-    path('register/', register_user_view, name='register_user'),
+    path('api/login/', login_view, name='login'),
+    path('api/register/', register_user_view, name='register_user'),
     path('api/pokemons/', listar_pokemons_view, name='listar_pokemons'),
     path('api/pokemons/favoritos/', listar_favoritos_view, name='listar_favoritos'),
     path('api/pokemons/equipe/', listar_equipe_view, name='listar_equipe'),
-    path('api/pokemons/adicionar', adicionar_pokemon_view, name='adicionar_pokemon'),
+    path('api/pokemons/adicionar/', adicionar_pokemon_view, name='adicionar_pokemon'),
     path('api/swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('pokemons/<int:pokemon_id>/favorito/', atualizar_favorito_view, name='atulizar_favorito'),

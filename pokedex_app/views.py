@@ -96,7 +96,7 @@ def register_user_view(request):
     if not email or not username or not password:
         return Response(
             {'detail': 'Email, username e senha são obrigatórios'},
-            status=status.HTTP_400_BAD_REQUEST
+            status=status.HTTP_400_BAD_REQUEST 
         )
 
     if Usuario.objects.filter(Email=email).exists():
@@ -126,24 +126,38 @@ def register_user_view(request):
 @permission_classes([IsAuthenticated])
 def listar_pokemons_view(request):
     """
-    Lista os Pokémons do usuário autenticado.
+    Lista Pokémons da PokéAPI.
     Filtros opcionais:
       - ?nome=pikachu
       - ?codigo=25
     """
-    user = request.user
     nome = request.query_params.get('nome')
     codigo = request.query_params.get('codigo')
 
-    queryset = PokemonUsuario.objects.filter(IDUsuario__Login=user.username)
+    pokemons = []
 
-    if nome:
-        queryset = queryset.filter(Nome__icontains=nome)
-    if codigo:
-        queryset = queryset.filter(Codigo=codigo)
+    # Definindo um range de IDs para buscar (exemplo: 1 a 150)
+    for poke_id in range(1, 25):
+        data = get_pokemon(poke_id)
+        if not data:
+            continue
 
-    serializer = PokemonUsuarioSerializer(queryset, many=True)
-    return Response(serializer.data)
+        poke_nome = data['name']
+
+        # Filtros
+        if nome and nome.lower() not in poke_nome.lower():
+            continue
+        if codigo and str(codigo) != str(data['id']):
+            continue
+
+        pokemons.append({
+            'id': data['id'],
+            'nome': poke_nome,
+            'tipo': [t['type']['name'] for t in data['types']],
+            'imagem': data['sprites']['front_default']
+        })
+
+    return Response(pokemons)
 
 @adicionar_pokemon_schema
 @api_view(['POST'])
@@ -157,8 +171,7 @@ def adicionar_pokemon_view(request):
     if not nome_pokemon:
         return Response({'detail': 'Informe o nome do Pokémon'}, status=400)
 
-    user = request.user
-    usuario = Usuario.objects.filter(Login=user.username).first()
+    usuario = request.user  # Usuário autenticado via JWT
 
     dados = get_pokemon(nome_pokemon)
     if not dados:
@@ -177,12 +190,15 @@ def adicionar_pokemon_view(request):
         Nome=dados['name'],
         ImagemURL=dados['sprites']['front_default'],
         Favorito=False,
-        GrupoBatalha=False
+        GrupoBatalha=True
     )
 
     return Response({
-        'detail': f'{pokemon.Nome.capitalize()} adicionado com sucesso!',
-        'pokemon': PokemonUsuarioSerializer(pokemon).data
+        'id': pokemon.Codigo,
+        'nome': pokemon.Nome,
+        'tipo': tipo_nome,
+        'imagem': pokemon.ImagemURL,
+        'mensagem': f'{pokemon.Nome.capitalize()} adicionado com sucesso!'
     }, status=201)
 
 @listar_favoritos_schema
@@ -204,10 +220,10 @@ def listar_equipe_view(request):
     """
     Retorna os Pokémons que estão na equipe de batalha (máximo 6).
     """
-    user = request.user
-    equipe = PokemonUsuario.objects.filter(IDUsuario__Login=user.username, GrupoBatalha=True)[:6]
+    usuario = request.user
+    equipe = PokemonUsuario.objects.filter(IDUsuario=usuario, GrupoBatalha=True)[:6]
     serializer = PokemonUsuarioSerializer(equipe, many=True)
-    return Response(serializer.data)
+    return Response(serializer.data, status=200)
 
 
 

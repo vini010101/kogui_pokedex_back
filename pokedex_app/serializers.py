@@ -25,20 +25,26 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
 
 class PokemonUsuarioSerializer(serializers.ModelSerializer):
-    IDUsuario = serializers.PrimaryKeyRelatedField(queryset=Usuario.objects.all())
-    IDTipoPokemon = TipoPokemonSerializer(read_only=True)
+    id = serializers.IntegerField(source='IDPokemonUsuario', read_only=True)
+    nome = serializers.CharField(source='Nome', read_only=True)
+    codigo = serializers.CharField(source='Codigo', read_only=True)
+    imagem = serializers.URLField(source='ImagemURL', read_only=True)
+    tipo = serializers.CharField(source='IDTipoPokemon.Nome', read_only=True)  # string simples
+    usuario = serializers.CharField(source='IDUsuario.Login', read_only=True)
+    GrupoBatalha = serializers.BooleanField(read_only=True)
+    Favorito = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = PokemonUsuario
         fields = [
-            'IDPokemonUsuario',
-            'IDUsuario',
-            'IDTipoPokemon',
-            'Codigo',
-            'Nome',
-            'ImagemURL',
+            'id',
+            'nome',
+            'codigo',
+            'imagem',
+            'tipo',
+            'usuario',
             'GrupoBatalha',
-            'Favorito'
+            'Favorito',
         ]
 
 
