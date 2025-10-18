@@ -29,10 +29,10 @@ class PokemonUsuarioSerializer(serializers.ModelSerializer):
     nome = serializers.CharField(source='Nome', read_only=True)
     codigo = serializers.CharField(source='Codigo', read_only=True)
     imagem = serializers.URLField(source='ImagemURL', read_only=True)
-    tipo = serializers.CharField(source='IDTipoPokemon.Nome', read_only=True)  # string simples
+    tipo = serializers.CharField(source='IDTipoPokemon.Descricao', read_only=True)
     usuario = serializers.CharField(source='IDUsuario.Login', read_only=True)
-    GrupoBatalha = serializers.BooleanField(read_only=True)
-    Favorito = serializers.BooleanField(read_only=True)
+    GrupoBatalha = serializers.BooleanField(read_only=True)  # <-- remove source
+    Favorito = serializers.BooleanField(read_only=True)     # <-- remove source
 
     class Meta:
         model = PokemonUsuario

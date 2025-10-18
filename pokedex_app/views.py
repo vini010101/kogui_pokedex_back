@@ -4,6 +4,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.parsers import JSONParser
+from django.shortcuts import get_object_or_404
 from django.contrib.auth import authenticate
 from pokedex_project.swagger import (
     listar_pokemons_schema,
@@ -259,13 +260,13 @@ def atualizar_equipe_view(request, pokemon_id: int):
     """
     user = request.user
     try:
-        pokemon = PokemonUsuario.objects.get(IDUsuario__Login=user.username, IDPokemonUsuario=pokemon_id)
+        pokemon = PokemonUsuario.objects.get(IDUsuario__Login=user.Login, IDPokemonUsuario=pokemon_id)
     except PokemonUsuario.DoesNotExist:
         return Response({'detail': 'Pokémon não encontrado'}, status=status.HTTP_404_NOT_FOUND)
 
     if not pokemon.GrupoBatalha:
         # Verifica se o usuário já tem 6 pokémons na equipe
-        count_equipe = PokemonUsuario.objects.filter(IDUsuario__Login=user.username, GrupoBatalha=True).count()
+        count_equipe = PokemonUsuario.objects.filter(IDUsuario__Login=user.Login, GrupoBatalha=True).count()
         if count_equipe >= 6:
             return Response({'detail': 'Você só pode ter 6 Pokémons na equipe'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -276,3 +277,16 @@ def atualizar_equipe_view(request, pokemon_id: int):
         'detail': f'{pokemon.Nome} {"adicionado à equipe" if pokemon.GrupoBatalha else "removido da equipe"}',
         'pokemon': PokemonUsuarioSerializer(pokemon).data
     }, status=status.HTTP_200_OK)
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def pokemon_detail_view(request, pokemon_id: int):
+    """
+    Retorna detalhes de um Pokémon específico do usuário logado
+    """
+    usuario = request.user
+    pokemon = get_object_or_404(PokemonUsuario, IDUsuario=usuario, IDPokemonUsuario=pokemon_id)
+    serializer = PokemonUsuarioSerializer(pokemon)
+    return Response(serializer.data)

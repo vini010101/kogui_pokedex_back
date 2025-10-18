@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import  login_view, listar_equipe_view, listar_pokemons_view, listar_favoritos_view, register_user_view, adicionar_pokemon_view, atualizar_equipe_view, atualizar_favorito_view
+from .views import  login_view, listar_equipe_view, pokemon_detail_view, listar_pokemons_view, listar_favoritos_view, register_user_view, adicionar_pokemon_view, atualizar_equipe_view, atualizar_favorito_view
 
  # importa o schema_view para gerar a documentação da api, 
  # #centralizei todas ao urls dentro do arquivo de urls do app
@@ -18,4 +18,5 @@ urlpatterns = [
     path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('api/pokemons/<int:pokemon_id>/favorito/', atualizar_favorito_view, name='atulizar_favorito'),
     path('api/pokemons/<int:pokemon_id>/equipe/', atualizar_equipe_view, name='atualizar_equipe'),
+    path('api/pokemons/<int:pokemon_id>/', pokemon_detail_view, name='pokemon-detail'),
 ]
