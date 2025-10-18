@@ -209,7 +209,7 @@ def listar_favoritos_view(request):
     Retorna todos os Pokémons marcados como favoritos do usuário autenticado.
     """
     user = request.user
-    favoritos = PokemonUsuario.objects.filter(IDUsuario__Login=user.username, Favorito=True)
+    favoritos = PokemonUsuario.objects.filter(IDUsuario__Login=user.Login, Favorito=True)
     serializer = PokemonUsuarioSerializer(favoritos, many=True)
     return Response(serializer.data)
 
@@ -236,7 +236,7 @@ def atualizar_favorito_view(request, pokemon_id: int):
     """
     user = request.user
     try:
-        pokemon = PokemonUsuario.objects.get(IDUsuario__Login=user.username, IDPokemonUsuario=pokemon_id)
+        pokemon = PokemonUsuario.objects.get(IDUsuario__Login=user.Login, IDPokemonUsuario=pokemon_id)
     except PokemonUsuario.DoesNotExist:
         return Response({'detail': 'Pokémon não encontrado'}, status=status.HTTP_404_NOT_FOUND)
 

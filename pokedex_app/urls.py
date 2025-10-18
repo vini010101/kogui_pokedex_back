@@ -16,6 +16,6 @@ urlpatterns = [
     path('api/pokemons/adicionar/', adicionar_pokemon_view, name='adicionar_pokemon'),
     path('api/swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-    path('pokemons/<int:pokemon_id>/favorito/', atualizar_favorito_view, name='atulizar_favorito'),
-    path('pokemons/<int:pokemon_id>/equipe/', atualizar_equipe_view, name='atualizar_equipe'),
+    path('api/pokemons/<int:pokemon_id>/favorito/', atualizar_favorito_view, name='atulizar_favorito'),
+    path('api/pokemons/<int:pokemon_id>/equipe/', atualizar_equipe_view, name='atualizar_equipe'),
 ]
